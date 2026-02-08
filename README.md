@@ -19,7 +19,7 @@ Grab binaries from the [releases page](https://github.com/ondrahracek/contextkee
 
 **Linux:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.1.0/contextkeeper-linux-amd64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.2.0/contextkeeper-linux-amd64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x contextkeeper-linux-amd64
 sudo mv contextkeeper-linux-amd64 /usr/local/bin/ck
@@ -27,7 +27,7 @@ sudo mv contextkeeper-linux-amd64 /usr/local/bin/ck
 
 **macOS:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.1.0/contextkeeper-darwin-arm64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.2.0/contextkeeper-darwin-arm64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x contextkeeper-darwin-arm64
 sudo mv contextkeeper-darwin-arm64 /usr/local/bin/ck
@@ -36,7 +36,7 @@ sudo mv contextkeeper-darwin-arm64 /usr/local/bin/ck
 **Windows:**
 ```powershell
 # Download and extract manually from releases page, or use:
-Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.1.0/contextkeeper-windows-amd64.tar.gz" -OutFile ck.tar.gz
+Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.2.0/contextkeeper-windows-amd64.tar.gz" -OutFile ck.tar.gz
 tar -xf ck.tar.gz
 ```
 
