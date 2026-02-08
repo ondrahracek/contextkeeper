@@ -5,9 +5,9 @@ import (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "contextkeeper",
-	Short: "A CLI tool for managing context and configuration",
-	Long:  `ContextKeeper helps you manage your project's context and configuration files.`,
+	Use:   "ck",
+	Short: "ContextKeeper - Manage your project context",
+	Long:  `A CLI tool for managing context and configuration across projects.`,
 }
 
 func Execute() {
