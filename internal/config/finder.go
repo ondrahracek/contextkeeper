@@ -136,23 +136,6 @@ func (f *Finder) getGlobalDefault() string {
 // These functions create a temporary Finder instance and delegate to its methods.
 
 // FindStoragePath locates the storage path using the default search strategy.
-//
-// This is a convenience function equivalent to calling NewFinder().FindStoragePath().
 func FindStoragePath(explicitPath string) string {
 	return NewFinder().FindStoragePath(explicitPath)
-}
-
-// checkLocalContext checks for a local context directory in the given directory.
-func checkLocalContext(dir string) string {
-	return NewFinder().checkLocalContext(dir)
-}
-
-// searchParents searches parent directories for context directory.
-func searchParents(dir string) string {
-	return NewFinder().searchParents(dir)
-}
-
-// getGlobalDefault returns the global default storage path based on OS.
-func getGlobalDefault() string {
-	return NewFinder().getGlobalDefault()
 }

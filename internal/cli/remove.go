@@ -1,11 +1,12 @@
 // Package cli provides the command-line interface for ContextKeeper.
 //
-// This package implements the Cobra-based CLI for managing project context
-// and configuration. See the root.go file for the main command structure.
+// This package implements the Cobra-based CLI for managing context and
+// configuration. See the root.go file for the main command structure.
 package cli
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/ondrahracek/contextkeeper/internal/config"
 	"github.com/ondrahracek/contextkeeper/internal/storage"
@@ -37,14 +38,8 @@ var forceDelete bool
 func removeCommand(cmd *cobra.Command, args []string) error {
 	id := args[0]
 
-	// Load configuration to get storage path
-	cfg, err := config.Load()
-	if err != nil {
-		return err
-	}
-
 	// Initialize storage and load items
-	stor := storage.NewStorage(cfg.StoragePath)
+	stor := storage.NewStorage(filepath.Join(config.FindStoragePath(""), "items.json"))
 	if err := stor.Load(); err != nil {
 		return err
 	}

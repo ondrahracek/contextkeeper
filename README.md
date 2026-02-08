@@ -87,6 +87,8 @@ ck edit <id>               # Edit item content
 
 ## Where it stores things
 
+ContextKeeper stores all your notes in a single file called `items.json` inside the `.contextkeeper/` directory. This file lives in your project and syncs naturally with git.
+
 ContextKeeper looks for storage in this order:
 
 1. Explicit path: `--path` flag
@@ -115,7 +117,6 @@ Or add to `.gitignore` if you prefer local-only storage.
 | `ck remove <id>` | Archive or delete |
 | `ck edit <id>` | Edit a note |
 | `ck init` | Set up storage |
-| `ck config` | Tweak settings |
 | `ck status` | Quick overview |
 
 ## Building from source

@@ -15,7 +15,7 @@ import (
 // initCmd initializes a new ContextKeeper directory.
 //
 // This command creates the .contextkeeper directory structure with
-// the necessary configuration and storage files.
+// the necessary storage file (items.json).
 var initCmd = &cobra.Command{
 	Use:     "init",
 	Short:   "Initialize ContextKeeper",
@@ -27,7 +27,7 @@ var initCmd = &cobra.Command{
 }
 
 // initCommand is the execution function for the init command.
-// It creates the required directory structure and files.
+// It creates the required directory structure and items.json file.
 func initCommand(cmd *cobra.Command, args []string) error {
 	// Define the context directory
 	contextDir := ".contextkeeper"
@@ -39,20 +39,8 @@ func initCommand(cmd *cobra.Command, args []string) error {
 
 	// Create items.json file for storing context items
 	itemsFile := filepath.Join(contextDir, "items.json")
-	if _, err := os.Create(itemsFile); err != nil {
+	if err := os.WriteFile(itemsFile, []byte("[]"), 0644); err != nil {
 		return fmt.Errorf("failed to create items file: %w", err)
-	}
-
-	// Create config.json file with storage path
-	configFile := filepath.Join(contextDir, "config.json")
-	cwd, _ := os.Getwd()
-	absPath, _ := filepath.Abs(cwd)
-	configContent := `{
-  "storagePath": "` + filepath.Join(absPath, contextDir) + `"
-}
-`
-	if err := os.WriteFile(configFile, []byte(configContent), 0644); err != nil {
-		return fmt.Errorf("failed to create config file: %w", err)
 	}
 
 	cmd.Printf("Initialized ContextKeeper in: %s\n", contextDir)

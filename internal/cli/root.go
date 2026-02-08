@@ -1,7 +1,7 @@
 // Package cli provides the command-line interface for ContextKeeper.
 //
-// This package implements the Cobra-based CLI for managing project context
-// and configuration. It supports commands for adding, listing, editing,
+// This package implements the Cobra-based CLI for managing context and
+// configuration. It supports commands for adding, listing, editing,
 // completing, and removing context items.
 //
 // # Commands
@@ -14,7 +14,6 @@
 //	- done:    Mark a context item as completed
 //	- remove:  Remove a context item
 //	- status:  Show a quick overview
-//	- config:  Manage configuration
 //	- init:    Initialize a new ContextKeeper directory
 package cli
 
@@ -54,10 +53,7 @@ Use "ck [command] --help" to get more information about a specific command.`,
   ck done abc12345
 
   # Edit an item in editor
-  ck edit abc12345
-
-  # Show current configuration
-  ck config --show`,
+  ck edit abc12345`,
 }
 
 // Execute runs the root command and handles any errors.

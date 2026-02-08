@@ -1,11 +1,12 @@
 // Package cli provides the command-line interface for ContextKeeper.
 //
-// This package implements the Cobra-based CLI for managing project context
-// and configuration. See the root.go file for the main command structure.
+// This package implements the Cobra-based CLI for managing context and
+// configuration. See the root.go file for the main command structure.
 package cli
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/ondrahracek/contextkeeper/internal/config"
@@ -30,14 +31,11 @@ var statusCmd = &cobra.Command{
 // statusCommand is the execution function for the status command.
 // It gathers and displays statistics about stored items.
 func statusCommand(cmd *cobra.Command, args []string) error {
-	// Load configuration to get storage path
-	cfg, err := config.Load()
-	if err != nil {
-		return err
-	}
+	// Get storage path
+	storagePath := config.FindStoragePath("")
 
 	// Initialize storage and load items
-	stor := storage.NewStorage(cfg.StoragePath)
+	stor := storage.NewStorage(filepath.Join(storagePath, "items.json"))
 	if err := stor.Load(); err != nil {
 		return err
 	}
@@ -71,7 +69,7 @@ func statusCommand(cmd *cobra.Command, args []string) error {
 	// Print status
 	fmt.Println("ContextKeeper Status")
 	fmt.Println("===================")
-	fmt.Printf("Storage Path: %s\n", cfg.StoragePath)
+	fmt.Printf("Storage Path: %s\n", storagePath)
 	fmt.Printf("Total Items: %d\n", total)
 	fmt.Printf("Active:      %d\n", active)
 	fmt.Printf("Completed:   %d\n", completed)

@@ -38,7 +38,8 @@ vendor/
 Thumbs.db
 
 # Project-specific
-.contextkeeper/       # Local context data (user-specific)
+# NOTE: .contextkeeper/ is intentionally NOT ignored
+# Share items.json with your team for synced context across devices
 releases/             # Pre-built binaries (regenerated on release)
 *.log
 

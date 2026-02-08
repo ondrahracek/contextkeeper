@@ -1,10 +1,13 @@
 // Package cli provides the command-line interface for ContextKeeper.
 //
-// This package implements the Cobra-based CLI for managing project context
-// and configuration. See the root.go file for the main command structure.
+// This package implements the Cobra-based CLI for managing context and
+// configuration. See the root.go file for the main command structure.
 package cli
 
 import (
+	"io"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/ondrahracek/contextkeeper/internal/config"
@@ -52,12 +55,6 @@ var (
 // addCommand is the execution function for the add command.
 // It creates a new context item and saves it to storage.
 func addCommand(cmd *cobra.Command, args []string) error {
-	// Load configuration to get storage path
-	cfg, err := config.Load()
-	if err != nil {
-		return err
-	}
-
 	var content string
 
 	// Determine content source: argument, editor, or stdin
@@ -65,13 +62,29 @@ func addCommand(cmd *cobra.Command, args []string) error {
 	case len(args) > 0:
 		content = args[0]
 	case useEditor:
+		var err error
 		content, err = utils.OpenEditor("")
 		if err != nil {
 			return err
 		}
 	default:
-		// No content provided, show help
-		return cmd.Help()
+		// Check if stdin has content
+		stat, err := os.Stdin.Stat()
+		if err != nil {
+			return err
+		}
+		if (stat.Mode() & os.ModeCharDevice) == 0 {
+			// stdin is a pipe
+			readContent, err := io.ReadAll(os.Stdin)
+			if err != nil {
+				return err
+			}
+			content = string(readContent)
+		}
+		if content == "" {
+			// No content provided, show help
+			return cmd.Help()
+		}
 	}
 
 	// Skip empty content
@@ -85,10 +98,10 @@ func addCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Get project from flag or config default
+	// Get project from flag or environment variable
 	project := projectFlag
 	if project == "" {
-		project = config.GetDefaultProject()
+		project = os.Getenv("CK_DEFAULT_PROJECT")
 	}
 
 	// Create the new item using models.ContextItem
@@ -102,7 +115,7 @@ func addCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	// Initialize storage and add the item
-	stor := storage.NewStorage(cfg.StoragePath)
+	stor := storage.NewStorage(filepath.Join(config.FindStoragePath(""), "items.json"))
 	if err := stor.Load(); err != nil {
 		return err
 	}
