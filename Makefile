@@ -1,7 +1,11 @@
 # ContextKeeper Makefile
 # A minimalist CLI tool for managing project context
 
-BINARY_NAME = contextkeeper
+BINARY_NAME = ck
+OS := $(shell go env GOOS)
+ifeq ($(OS),windows)
+	BINARY_NAME = ck.exe
+endif
 VERSION ?= 0.1.0
 COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 DATE ?= $(shell date -u +"%Y-%m-%d")
@@ -46,23 +50,23 @@ test-coverage:
 # Build all platforms
 build-all: clean
 	@echo "Building Linux amd64..."
-	GOOS=linux GOARCH=amd64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-linux-amd64 .
+	GOOS=linux GOARCH=amd64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/ck-linux-amd64 .
 	@echo "Building Linux arm64..."
-	GOOS=linux GOARCH=arm64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-linux-arm64 .
+	GOOS=linux GOARCH=arm64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/ck-linux-arm64 .
 	@echo "Building macOS amd64..."
-	GOOS=darwin GOARCH=amd64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-darwin-amd64 .
+	GOOS=darwin GOARCH=amd64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/ck-darwin-amd64 .
 	@echo "Building macOS arm64..."
-	GOOS=darwin GOARCH=arm64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-darwin-arm64 .
+	GOOS=darwin GOARCH=arm64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/ck-darwin-arm64 .
 	@echo "Building Windows amd64..."
-	GOOS=windows GOARCH=amd64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-windows-amd64.exe .
+	GOOS=windows GOARCH=amd64 $(GO) build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/ck-windows-amd64.exe .
 	@echo "Building source tarball..."
-	tar -czf $(DIST_DIR)/$(BINARY_NAME)-$(VERSION)-src.tar.gz --transform "s|^|$(BINARY_NAME)-$(VERSION)/|" cmd/ internal/ Makefile go.mod go.sum README.md LICENSE
+	tar -czf $(DIST_DIR)/ck-$(VERSION)-src.tar.gz --transform "s|^|ck-$(VERSION)/|" cmd/ internal/ Makefile go.mod go.sum README.md LICENSE
 	@echo "Build complete! Binaries in $(DIST_DIR)/"
 
 # Create release package (tar.gz for each platform)
 release: build-all
-	@for f in $(DIST_DIR)/$(BINARY_NAME)-*-amd64 $(DIST_DIR)/$(BINARY_NAME)-*-arm64; do \
-		if [ -f "$$f" ] && [ "$$f" != "$$f.tar.gz" ]; then \
+	@for f in $(DIST_DIR)/ck-linux-* $(DIST_DIR)/ck-darwin-*; do \
+		if [ -f "$$f" ]; then \
 			echo "Compressing $$f..."; \
 			tar -czf "$$f.tar.gz" "$$f"; \
 		fi; \
