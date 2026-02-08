@@ -6,7 +6,7 @@ package cli
 
 import (
 	"fmt"
-	"path/filepath"
+	"strings"
 
 	"github.com/ondrahracek/contextkeeper/internal/config"
 	"github.com/ondrahracek/contextkeeper/internal/storage"
@@ -39,26 +39,24 @@ func removeCommand(cmd *cobra.Command, args []string) error {
 	id := args[0]
 
 	// Initialize storage and load items
-	stor := storage.NewStorage(filepath.Join(config.FindStoragePath(""), "items.json"))
+	stor := storage.NewStorage(config.FindStoragePath(""))
 	if err := stor.Load(); err != nil {
-		return err
+		return fmt.Errorf("failed to load storage: %w", err)
 	}
 
 	// Get all items and find the full ID
 	allItems := stor.GetAll()
-	found := false
 	var itemID string
 
 	for _, item := range allItems {
 		// Match by prefix
-		if len(item.ID) >= len(id) && item.ID[:len(id)] == id {
-			found = true
+		if strings.HasPrefix(item.ID, id) {
 			itemID = item.ID
 			break
 		}
 	}
 
-	if !found {
+	if itemID == "" {
 		return fmt.Errorf("item not found: %s", id)
 	}
 
@@ -68,7 +66,8 @@ func removeCommand(cmd *cobra.Command, args []string) error {
 		fmt.Print("Are you sure? (y/N): ")
 		var response string
 		fmt.Scanln(&response)
-		if response != "y" && response != "Y" {
+		response = strings.ToLower(strings.TrimSpace(response))
+		if response != "y" && response != "yes" {
 			fmt.Println("Cancelled.")
 			return nil
 		}
@@ -76,7 +75,7 @@ func removeCommand(cmd *cobra.Command, args []string) error {
 
 	// Delete the item from storage
 	if err := stor.Delete(itemID); err != nil {
-		return err
+		return fmt.Errorf("failed to delete item %q: %w", itemID, err)
 	}
 
 	// Display result

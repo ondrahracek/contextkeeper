@@ -41,7 +41,7 @@ func doneCommand(cmd *cobra.Command, args []string) error {
 	// Initialize storage
 	stor := storage.NewStorage(config.FindStoragePath(""))
 	if err := stor.Load(); err != nil {
-		return err
+		return fmt.Errorf("failed to load storage: %w", err)
 	}
 
 	// Try exact match first
@@ -61,21 +61,26 @@ func doneCommand(cmd *cobra.Command, args []string) error {
 			if errors.Is(err, storage.ErrAmbiguousID) {
 				return showAmbiguousMatches(stor, cmd, id)
 			}
+			return fmt.Errorf("failed to retrieve item by prefix %q: %w", id, err)
 		}
 		// Found unique match
 		return markItemComplete(stor, cmd, item)
 	}
 
-	return err
+	return fmt.Errorf("failed to retrieve item %q: %w", id, err)
 }
 
-// markItemComplete marks an item as completed.
+// markItemComplete marks an item as completed and saves it to storage.
 func markItemComplete(stor storage.Storage, cmd *cobra.Command, item models.ContextItem) error {
 	now := time.Now()
 	item.CompletedAt = &now
 
 	if err := stor.Update(item); err != nil {
-		return err
+		return fmt.Errorf("failed to update item %q: %w", item.ID, err)
+	}
+
+	if err := stor.Save(); err != nil {
+		return fmt.Errorf("failed to save item %q: %w", item.ID, err)
 	}
 
 	cmd.Printf("Marked item as completed: %s\n", item.ID[:8])

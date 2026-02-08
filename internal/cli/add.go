@@ -5,9 +5,9 @@
 package cli
 
 import (
+	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/ondrahracek/contextkeeper/internal/config"
@@ -115,17 +115,17 @@ func addCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	// Initialize storage and add the item
-	stor := storage.NewStorage(filepath.Join(config.FindStoragePath(""), "items.json"))
+	stor := storage.NewStorage(config.FindStoragePath(""))
 	if err := stor.Load(); err != nil {
-		return err
+		return fmt.Errorf("failed to load storage: %w", err)
 	}
 
 	if err := stor.Add(item); err != nil {
-		return err
+		return fmt.Errorf("failed to add item: %w", err)
 	}
 
 	if err := stor.Save(); err != nil {
-		return err
+		return fmt.Errorf("failed to save item: %w", err)
 	}
 
 	cmd.Println("Added context item")

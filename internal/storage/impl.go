@@ -3,6 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,6 +17,17 @@ var ErrItemNotFound = errors.New("item not found")
 
 // ErrAmbiguousID is returned when multiple items match the given ID prefix.
 var ErrAmbiguousID = errors.New("ambiguous ID: multiple items match")
+
+const (
+	// ItemsFileName is the default filename for storing items.
+	ItemsFileName = "items.json"
+
+	// DefaultDirPerms are the default permissions for created directories.
+	DefaultDirPerms = 0755
+
+	// DefaultFilePerms are the default permissions for created files.
+	DefaultFilePerms = 0644
+)
 
 // Storage defines the interface for persisting context items.
 // All implementations must be thread-safe.
@@ -76,6 +88,11 @@ type storageImpl struct {
 // Returns:
 //   - Storage interface for managing context items
 func NewStorage(path string) Storage {
+	// Ensure the path is the items.json file path
+	if !strings.HasSuffix(path, ItemsFileName) {
+		path = filepath.Join(path, ItemsFileName)
+	}
+
 	return &storageImpl{
 		path:  path,
 		items: make([]models.ContextItem, 0),
@@ -85,8 +102,8 @@ func NewStorage(path string) Storage {
 // ensureDir creates the directory for the storage file if it doesn't exist.
 func (s *storageImpl) ensureDir() error {
 	dir := filepath.Dir(s.path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
+	if err := os.MkdirAll(dir, DefaultDirPerms); err != nil {
+		return fmt.Errorf("failed to create storage directory %q: %w", dir, err)
 	}
 	return nil
 }
@@ -100,10 +117,13 @@ func (s *storageImpl) persistLocked() error {
 
 	data, err := json.MarshalIndent(s.items, "", "  ")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal items to JSON: %w", err)
 	}
 
-	return os.WriteFile(s.path, data, 0644)
+	if err := os.WriteFile(s.path, data, DefaultFilePerms); err != nil {
+		return fmt.Errorf("failed to write storage file %q: %w", s.path, err)
+	}
+	return nil
 }
 
 // Load reads all items from the storage file into memory.
@@ -117,11 +137,11 @@ func (s *storageImpl) Load() error {
 			s.items = make([]models.ContextItem, 0)
 			return nil
 		}
-		return err
+		return fmt.Errorf("failed to read storage file %q: %w", s.path, err)
 	}
 
 	if err := json.Unmarshal(data, &s.items); err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal JSON from storage file %q: %w", s.path, err)
 	}
 
 	return nil

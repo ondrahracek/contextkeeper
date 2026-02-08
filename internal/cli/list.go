@@ -7,7 +7,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"path/filepath"
 
 	"github.com/ondrahracek/contextkeeper/internal/config"
 	"github.com/ondrahracek/contextkeeper/internal/models"
@@ -54,9 +53,9 @@ var (
 // It retrieves and filters context items from storage.
 func listCommand(cmd *cobra.Command, args []string) error {
 	// Initialize storage and load items
-	stor := storage.NewStorage(filepath.Join(config.FindStoragePath(""), "items.json"))
+	stor := storage.NewStorage(config.FindStoragePath(""))
 	if err := stor.Load(); err != nil {
-		return err
+		return fmt.Errorf("failed to load storage: %w", err)
 	}
 
 	// Get all items
@@ -64,43 +63,24 @@ func listCommand(cmd *cobra.Command, args []string) error {
 
 	// Filter by project if specified
 	if projectFilter != "" {
-		filtered := make([]models.ContextItem, 0)
-		for _, item := range items {
-			if item.Project == projectFilter {
-				filtered = append(filtered, item)
-			}
-		}
-		items = filtered
+		items = filterByProject(items, projectFilter)
 	}
 
 	// Filter by tags if specified
 	if tagFilter != "" {
-		filterTags := utils.ParseTags(tagFilter)
-		filtered := make([]models.ContextItem, 0)
-		for _, item := range items {
-			if containsTags(item.Tags, filterTags) {
-				filtered = append(filtered, item)
-			}
-		}
-		items = filtered
+		items = filterByTags(items, tagFilter)
 	}
 
 	// Filter out completed items unless --all is set
 	if !showAll {
-		active := make([]models.ContextItem, 0)
-		for _, item := range items {
-			if item.CompletedAt == nil {
-				active = append(active, item)
-			}
-		}
-		items = active
+		items = filterActive(items)
 	}
 
 	// Output in requested format
 	if jsonOutput {
 		data, err := json.MarshalIndent(items, "", "  ")
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to marshal items to JSON: %w", err)
 		}
 		fmt.Println(string(data))
 	} else {
@@ -108,6 +88,40 @@ func listCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+// filterByProject filters items by the specified project name.
+func filterByProject(items []models.ContextItem, project string) []models.ContextItem {
+	filtered := make([]models.ContextItem, 0)
+	for _, item := range items {
+		if item.Project == project {
+			filtered = append(filtered, item)
+		}
+	}
+	return filtered
+}
+
+// filterByTags filters items by the specified tags.
+func filterByTags(items []models.ContextItem, tags string) []models.ContextItem {
+	filterTags := utils.ParseTags(tags)
+	filtered := make([]models.ContextItem, 0)
+	for _, item := range items {
+		if containsTags(item.Tags, filterTags) {
+			filtered = append(filtered, item)
+		}
+	}
+	return filtered
+}
+
+// filterActive filters out completed items.
+func filterActive(items []models.ContextItem) []models.ContextItem {
+	active := make([]models.ContextItem, 0)
+	for _, item := range items {
+		if item.CompletedAt == nil {
+			active = append(active, item)
+		}
+	}
+	return active
 }
 
 // containsTags checks if itemTags contains all filterTags.

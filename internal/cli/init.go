@@ -34,13 +34,18 @@ func initCommand(cmd *cobra.Command, args []string) error {
 
 	// Create the .contextkeeper directory
 	if err := os.MkdirAll(contextDir, 0755); err != nil {
-		return fmt.Errorf("failed to create directory: %w", err)
+		return fmt.Errorf("failed to create directory %q: %w", contextDir, err)
 	}
 
 	// Create items.json file for storing context items
 	itemsFile := filepath.Join(contextDir, "items.json")
+	if _, err := os.Stat(itemsFile); err == nil {
+		cmd.Printf("ContextKeeper is already initialized in %s\n", contextDir)
+		return nil
+	}
+
 	if err := os.WriteFile(itemsFile, []byte("[]"), 0644); err != nil {
-		return fmt.Errorf("failed to create items file: %w", err)
+		return fmt.Errorf("failed to create items file %q: %w", itemsFile, err)
 	}
 
 	cmd.Printf("Initialized ContextKeeper in: %s\n", contextDir)

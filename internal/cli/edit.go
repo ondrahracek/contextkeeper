@@ -6,7 +6,7 @@ package cli
 
 import (
 	"fmt"
-	"path/filepath"
+	"strings"
 
 	"github.com/ondrahracek/contextkeeper/internal/config"
 	"github.com/ondrahracek/contextkeeper/internal/storage"
@@ -34,35 +34,33 @@ func editCommand(cmd *cobra.Command, args []string) error {
 	id := args[0]
 
 	// Initialize storage and load items
-	stor := storage.NewStorage(filepath.Join(config.FindStoragePath(""), "items.json"))
+	stor := storage.NewStorage(config.FindStoragePath(""))
 	if err := stor.Load(); err != nil {
-		return err
+		return fmt.Errorf("failed to load storage: %w", err)
 	}
 
 	// Get all items and find the item index
 	allItems := stor.GetAll()
-	found := false
-	var itemIndex int
+	var itemIndex = -1
 	var originalContent string
 
 	for i, item := range allItems {
 		// Match by prefix
-		if len(item.ID) >= len(id) && item.ID[:len(id)] == id {
-			found = true
+		if strings.HasPrefix(item.ID, id) {
 			itemIndex = i
 			originalContent = item.Content
 			break
 		}
 	}
 
-	if !found {
+	if itemIndex == -1 {
 		return fmt.Errorf("item not found: %s", id)
 	}
 
 	// Open editor with current content
 	newContent, err := utils.OpenEditor(originalContent)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open editor: %w", err)
 	}
 
 	// Update the item
@@ -71,7 +69,7 @@ func editCommand(cmd *cobra.Command, args []string) error {
 	// Save the storage
 	stor.SetItems(allItems)
 	if err := stor.Save(); err != nil {
-		return err
+		return fmt.Errorf("failed to save storage: %w", err)
 	}
 
 	cmd.Printf("Updated item: %s\n", id[:8])

@@ -19,24 +19,24 @@ Grab binaries from the [releases page](https://github.com/ondrahracek/contextkee
 
 **Linux:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.4.0/contextkeeper-linux-amd64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.4.0/ck-linux-amd64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
-chmod +x contextkeeper-linux-amd64
-sudo mv contextkeeper-linux-amd64 /usr/local/bin/ck
+chmod +x ck
+sudo mv ck /usr/local/bin/
 ```
 
 **macOS:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.4.0/contextkeeper-darwin-arm64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.4.0/ck-darwin-arm64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
-chmod +x contextkeeper-darwin-arm64
-sudo mv contextkeeper-darwin-arm64 /usr/local/bin/ck
+chmod +x ck
+sudo mv ck /usr/local/bin/
 ```
 
 **Windows:**
 ```powershell
 # Download and extract manually from releases page, or use:
-Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.4.0/contextkeeper-windows-amd64.tar.gz" -OutFile ck.tar.gz
+Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.4.0/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
 tar -xf ck.tar.gz
 ```
 
@@ -71,7 +71,7 @@ ck add -e                  # Opens your editor for longer notes
 
 See what you have:
 ```bash
-ck list                    # Show all active notes
+ck list                    # Show all active notes with IDs
 ck list --project webapp   # Filter by project
 ck list --tags bug         # Filter by tag
 ck list --all              # Include completed items
@@ -80,7 +80,8 @@ ck list --json             # JSON output for scripting
 
 Mark things done:
 ```bash
-ck done <id>               # Mark item as completed
+ck done 5299c5             # Mark item as completed (use 6+ chars of ID)
+ck done abc12345-def6-7890 # Full UUID also works
 ck remove <id>             # Archive item
 ck edit <id>               # Edit item content
 ```
@@ -112,8 +113,8 @@ Or add to `.gitignore` if you prefer local-only storage.
 | Command | What it does |
 |---------|--------------|
 | `ck add [content]` | Add a new note |
-| `ck list` | List all notes |
-| `ck done <id>` | Mark as completed |
+| `ck list` | List all notes (shows 6-char IDs) |
+| `ck done <id>` | Mark as completed (accepts partial ID) |
 | `ck remove <id>` | Archive or delete |
 | `ck edit <id>` | Edit a note |
 | `ck init` | Set up storage |
