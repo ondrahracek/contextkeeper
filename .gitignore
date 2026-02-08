@@ -1,21 +1,50 @@
-# Binaries
+# Binaries for programs
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+*.tar.gz
 contextkeeper
+ck
 
 # Test binary
 *.test
-
-# Output of go coverage
 *.out
+
+# Output of code coverage
+coverage.html
+coverage.out
 
 # Go workspace
 go.work
+go.work.sum
+
+# Vendor directory (if using go modules)
+vendor/
+
+# golang.org/x/tools/cmd/cover
+*.coverprofile
 
 # IDE
 .idea/
 .vscode/
 *.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project-specific
+.contextkeeper/       # Local context data (user-specific)
+releases/             # Pre-built binaries (regenerated on release)
+*.log
+
+# Credentials/Secrets (must be caught)
+*credentials*
+*secrets*
+*.pem
+*.key
+.env
