@@ -4,7 +4,7 @@ Keep track of your thoughts, bugs, and ideas across all your devices without the
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8.svg)
-![Platforms](https://img.shields.io/badge/Platforms-Linux%20%7C%20macOS%20%7C-Windows-lightgrey.svg)
+![Platforms](https://img.shields.io/badge/platforms-Linux%20macOS%20Windows-lightgrey)
 
 ## What it does
 
@@ -15,22 +15,42 @@ Keep track of your thoughts, bugs, and ideas across all your devices without the
 
 ## Install
 
+Grab binaries from the [releases page](https://github.com/ondrahracek/contextkeeper/releases):
+
 **Linux:**
 ```bash
-curl -sSL https://ck.ondrahracek.cz/install | bash
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.1.0/contextkeeper-linux-amd64.tar.gz -o ck.tar.gz
+tar -xzf ck.tar.gz
+chmod +x contextkeeper-linux-amd64
+sudo mv contextkeeper-linux-amd64 /usr/local/bin/ck
 ```
 
 **macOS:**
 ```bash
-curl -sSL https://ck.ondrahracek.cz/install | bash
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.1.0/contextkeeper-darwin-arm64.tar.gz -o ck.tar.gz
+tar -xzf ck.tar.gz
+chmod +x contextkeeper-darwin-arm64
+sudo mv contextkeeper-darwin-arm64 /usr/local/bin/ck
 ```
 
-**Windows (PowerShell):**
+**Windows:**
 ```powershell
-iwr https://ck.ondrahracek.cz/install.ps1 | iex
+# Download and extract manually from releases page, or use:
+Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.1.0/contextkeeper-windows-amd64.tar.gz" -OutFile ck.tar.gz
+tar -xf ck.tar.gz
 ```
 
-Or grab binaries directly from the [releases page](https://github.com/ondrahracek/contextkeeper/releases).
+**Via Homebrew:**
+```bash
+brew install ondhrahracek/tap/contextkeeper
+```
+
+**From source:**
+```bash
+git clone https://github.com/ondrahracek/contextkeeper.git
+cd contextkeeper
+go build -o ck .
+```
 
 ## Quick usage
 
