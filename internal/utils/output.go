@@ -51,7 +51,7 @@ const (
 
 // FormatItemList formats a list of ContextItem for display.
 // Items can be optionally filtered to hide completed items.
-// The output includes status indicators, content, project info, tags, and creation date.
+// The output includes ID, status indicators, content, project info, tags, and creation date.
 //
 // Parameters:
 //   - items: Slice of ContextItem to format
@@ -69,6 +69,9 @@ func FormatItemList(items []models.ContextItem, showCompleted bool) string {
 		if item.CompletedAt != nil && !showCompleted {
 			continue
 		}
+
+		// Show first 6 characters of ID
+		idDisplay := item.ID[:6]
 
 		status := "[ ]"
 		if item.CompletedAt != nil {
@@ -88,8 +91,9 @@ func FormatItemList(items []models.ContextItem, showCompleted bool) string {
 		createdAt := item.CreatedAt.Format("2006-01-02 15:04")
 		truncatedContent := truncateString(item.Content, maxContentLength)
 
-		fmt.Fprintf(&sb, "%s %s %s %s %s\n",
+		fmt.Fprintf(&sb, "%s %s %s %s %s %s\n",
 			status,
+			fmt.Sprintf("%s[%s]%s", colorBold, idDisplay, colorReset),
 			truncatedContent,
 			projectInfo,
 			tagsInfo,

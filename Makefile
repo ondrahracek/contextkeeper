@@ -2,7 +2,7 @@
 # A minimalist CLI tool for managing project context
 
 APP_NAME = contextkeeper
-VERSION ?= 0.3.1
+VERSION ?= 0.4.0
 COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 DATE ?= $(shell date -u +"%Y-%m-%d")
 DIST_DIR = releases

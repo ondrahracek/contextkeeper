@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/ondrahracek/contextkeeper/internal/models"
@@ -12,6 +13,9 @@ import (
 
 // ErrItemNotFound is returned when an item with the specified ID doesn't exist.
 var ErrItemNotFound = errors.New("item not found")
+
+// ErrAmbiguousID is returned when multiple items match the given ID prefix.
+var ErrAmbiguousID = errors.New("ambiguous ID: multiple items match")
 
 // Storage defines the interface for persisting context items.
 // All implementations must be thread-safe.
@@ -27,9 +31,15 @@ type Storage interface {
 	// GetAll returns a copy of all stored items.
 	GetAll() []models.ContextItem
 
-	// GetByID retrieves a single item by its ID.
+	// GetByID retrieves a single item by its full ID.
 	// Returns ErrItemNotFound if the item doesn't exist.
 	GetByID(id string) (models.ContextItem, error)
+
+	// GetByPrefix retrieves items by ID prefix.
+	// Returns all items whose ID starts with the given prefix.
+	// If no items match, returns ErrItemNotFound.
+	// If multiple items match, returns ErrAmbiguousID.
+	GetByPrefix(prefix string) (models.ContextItem, error)
 
 	// Add inserts a new item into storage.
 	Add(item models.ContextItem) error
@@ -147,6 +157,31 @@ func (s *storageImpl) GetByID(id string) (models.ContextItem, error) {
 	}
 
 	return models.ContextItem{}, ErrItemNotFound
+}
+
+// GetByPrefix retrieves items by ID prefix.
+// Returns the item if exactly one matches.
+// Returns ErrItemNotFound if no items match.
+// Returns ErrAmbiguousID if multiple items match.
+func (s *storageImpl) GetByPrefix(prefix string) (models.ContextItem, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var matches []models.ContextItem
+	for _, item := range s.items {
+		if strings.HasPrefix(item.ID, prefix) {
+			matches = append(matches, item)
+		}
+	}
+
+	switch len(matches) {
+	case 0:
+		return models.ContextItem{}, ErrItemNotFound
+	case 1:
+		return matches[0], nil
+	default:
+		return models.ContextItem{}, ErrAmbiguousID
+	}
 }
 
 // Add inserts a new item into storage.

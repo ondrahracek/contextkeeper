@@ -5,11 +5,14 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
-	"path/filepath"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/ondrahracek/contextkeeper/internal/config"
+	"github.com/ondrahracek/contextkeeper/internal/models"
 	"github.com/ondrahracek/contextkeeper/internal/storage"
 	"github.com/spf13/cobra"
 )
@@ -24,47 +27,50 @@ var doneCmd = &cobra.Command{
 	Example: `  # Mark an item as done (full ID)
   ck done abc12345-def6-7890-1234-567890abcdef
 
-  # Mark an item as done (partial ID prefix)
+  # Mark an item as done (partial ID prefix - at least 6 chars recommended)
   ck done abc12345`,
 	Args: cobra.ExactArgs(1),
 	RunE: doneCommand,
 }
 
 // doneCommand is the execution function for the done command.
-// It finds and marks a context item as completed.
+// It finds and marks a context item as completed using prefix matching.
 func doneCommand(cmd *cobra.Command, args []string) error {
 	id := args[0]
 
-	// Initialize storage and load items
-	stor := storage.NewStorage(filepath.Join(config.FindStoragePath(""), "items.json"))
+	// Initialize storage
+	stor := storage.NewStorage(config.FindStoragePath(""))
 	if err := stor.Load(); err != nil {
 		return err
 	}
 
-	// Get all items and find matching one
-	allItems := stor.GetAll()
-	found := false
-	var itemID string
+	// Try exact match first
+	item, err := stor.GetByID(id)
+	if err == nil {
+		// Exact match found
+		return markItemComplete(stor, cmd, item)
+	}
 
-	for _, item := range allItems {
-		// Match by prefix
-		if len(item.ID) >= len(id) && item.ID[:len(id)] == id {
-			found = true
-			itemID = item.ID
-			break
+	// Try prefix match
+	if errors.Is(err, storage.ErrItemNotFound) || errors.Is(err, storage.ErrAmbiguousID) {
+		item, err = stor.GetByPrefix(id)
+		if err != nil {
+			if errors.Is(err, storage.ErrItemNotFound) {
+				return fmt.Errorf("item not found: %s", id)
+			}
+			if errors.Is(err, storage.ErrAmbiguousID) {
+				return showAmbiguousMatches(stor, cmd, id)
+			}
 		}
+		// Found unique match
+		return markItemComplete(stor, cmd, item)
 	}
 
-	if !found {
-		return fmt.Errorf("item not found: %s", id)
-	}
+	return err
+}
 
-	// Get the item and update it
-	item, err := stor.GetByID(itemID)
-	if err != nil {
-		return err
-	}
-
+// markItemComplete marks an item as completed.
+func markItemComplete(stor storage.Storage, cmd *cobra.Command, item models.ContextItem) error {
 	now := time.Now()
 	item.CompletedAt = &now
 
@@ -72,8 +78,38 @@ func doneCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cmd.Printf("Marked item as completed: %s\n", itemID[:8])
+	cmd.Printf("Marked item as completed: %s\n", item.ID[:8])
 	return nil
+}
+
+// showAmbiguousMatches shows all items matching the prefix.
+func showAmbiguousMatches(stor storage.Storage, cmd *cobra.Command, prefix string) error {
+	allItems := stor.GetAll()
+	var matches []models.ContextItem
+	for _, item := range allItems {
+		if strings.HasPrefix(item.ID, prefix) {
+			matches = append(matches, item)
+		}
+	}
+
+	if len(matches) <= 1 {
+		return fmt.Errorf("item not found: %s", prefix)
+	}
+
+	fmt.Fprintf(os.Stderr, "Error: %d items match %q:\n", len(matches), prefix)
+	for _, item := range matches {
+		preview := item.Content
+		if len(preview) > 40 {
+			preview = preview[:40] + "..."
+		}
+		fmt.Fprintf(os.Stderr, "  - %s: %s\n", item.ID[:6], preview)
+	}
+	fmt.Fprintf(os.Stderr, "\nUse more characters to disambiguate:\n")
+	for _, item := range matches {
+		fmt.Fprintf(os.Stderr, "  ck done %s\n", item.ID)
+	}
+
+	return fmt.Errorf("ambiguous ID: %s", prefix)
 }
 
 // init registers the done command with the root command.
