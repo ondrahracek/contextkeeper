@@ -91,9 +91,13 @@ func FormatItemList(items []models.ContextItem, showCompleted bool) string {
 		createdAt := item.CreatedAt.Format("2006-01-02 15:04")
 		truncatedContent := truncateString(item.Content, maxContentLength)
 
-		fmt.Fprintf(&sb, "%s %s %s %s %s %s\n",
+		// Format the output line.
+		// Note: We use plain [ID] without bold ANSI codes to ensure cross-platform
+		// compatibility, especially for Windows terminals that may not support
+		// or have virtual terminal sequences enabled.
+		fmt.Fprintf(&sb, "%s [%s] %s %s %s %s\n",
 			status,
-			fmt.Sprintf("%s[%s]%s", colorBold, idDisplay, colorReset),
+			idDisplay,
 			truncatedContent,
 			projectInfo,
 			tagsInfo,
