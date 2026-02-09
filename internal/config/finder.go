@@ -27,10 +27,10 @@ func NewFinder() *Finder {
 // FindStoragePath locates the storage path for context data.
 //
 // The search follows this priority order:
-//   1. Explicit path: If a non-empty path is provided, it is used directly
-//   2. Local context: Checks for .contextkeeper directory in current directory
-//   3. Parent directories: Searches parent directories up to 10 levels for .contextkeeper
-//   4. Global default: Falls back to OS-specific default location
+//  1. Explicit path: If a non-empty path is provided, it is used directly
+//  2. Local context: Checks for .contextkeeper directory in current directory
+//  3. Parent directories: Searches parent directories up to 10 levels for .contextkeeper
+//  4. Global default: Falls back to OS-specific default location
 //
 // Parameters:
 //   - explicitPath: A specific path to use; empty string triggers search strategy
@@ -38,6 +38,11 @@ func NewFinder() *Finder {
 // Returns:
 //   - The resolved storage path as an absolute directory path
 func (f *Finder) FindStoragePath(explicitPath string) string {
+	// 0. Check environment variable
+	if envPath := os.Getenv("CK_STORAGE_PATH"); envPath != "" {
+		return envPath
+	}
+
 	// 1. If explicit path provided, use it
 	if explicitPath != "" {
 		return explicitPath

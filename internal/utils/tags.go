@@ -26,7 +26,8 @@ var tagRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 //   - tagStr: A string containing tags separated by spaces, commas, or both
 //
 // Returns:
-//   A slice of unique, trimmed tags in their original order
+//
+//	A slice of unique, trimmed tags in their original order
 func ParseTags(tagStr string) []string {
 	if strings.TrimSpace(tagStr) == "" {
 		return nil

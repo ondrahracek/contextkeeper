@@ -40,10 +40,10 @@ func TestStorageCRUD(t *testing.T) {
 
 	// Test Add
 	item := models.ContextItem{
-		ID:        "test-123",
-		Content:   "Test content",
-		Project:   "test-project",
-		Tags:      []string{"tag1"},
+		ID:      "test-123",
+		Content: "Test content",
+		Project: "test-project",
+		Tags:    []string{"tag1"},
 	}
 	err = stor.Add(item)
 	if err != nil {

@@ -5,6 +5,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -21,9 +22,9 @@ import (
 //
 // The command requires an item ID (can be partial prefix) as an argument.
 var doneCmd = &cobra.Command{
-	Use:     "done <id>",
-	Short:   "Mark a context item as completed",
-	Long:    "Mark a context item as completed by its ID. Use 'ck list' to see item IDs.",
+	Use:   "done <id>",
+	Short: "Mark a context item as completed",
+	Long:  "Mark a context item as completed by its ID. Use 'ck list' to see item IDs.",
 	Example: `  # Mark an item as done (full ID)
   ck done abc12345-def6-7890-1234-567890abcdef
 
@@ -83,7 +84,16 @@ func markItemComplete(stor storage.Storage, cmd *cobra.Command, item models.Cont
 		return fmt.Errorf("failed to save item %q: %w", item.ID, err)
 	}
 
-	cmd.Printf("Marked item as completed: %s\n", item.ID[:8])
+	if jsonOutput {
+		result := map[string]string{
+			"id":     item.ID[:8],
+			"status": "completed",
+		}
+		data, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Fprintln(cmd.OutOrStdout(), string(data))
+	} else {
+		cmd.Printf("Marked item as completed: %s\n", item.ID[:8])
+	}
 	return nil
 }
 
@@ -119,6 +129,7 @@ func showAmbiguousMatches(stor storage.Storage, cmd *cobra.Command, prefix strin
 
 // init registers the done command with the root command.
 func init() {
+	doneCmd.Flags().BoolVar(&jsonOutput, "json", false, "Output as JSON")
 	// Add command to root
 	RootCmd.AddCommand(doneCmd)
 }

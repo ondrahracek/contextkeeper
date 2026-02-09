@@ -8,13 +8,13 @@
 //
 // The CLI provides the following main commands:
 //
-//	- add:     Add a new context item
-//	- list:    List context items with optional filters
-//	- edit:    Edit an existing context item
-//	- done:    Mark a context item as completed
-//	- remove:  Remove a context item
-//	- status:  Show a quick overview
-//	- init:    Initialize a new ContextKeeper directory
+//   - add:     Add a new context item
+//   - list:    List context items with optional filters
+//   - edit:    Edit an existing context item
+//   - done:    Mark a context item as completed
+//   - remove:  Remove a context item
+//   - status:  Show a quick overview
+//   - init:    Initialize a new ContextKeeper directory
 package cli
 
 import (

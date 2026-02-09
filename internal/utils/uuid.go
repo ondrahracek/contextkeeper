@@ -20,7 +20,8 @@ const (
 // random number generation (crypto/rand).
 //
 // Returns:
-//   A string representation of the UUID in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+//
+//	A string representation of the UUID in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 func GenerateUUID() string {
 	// Generate 16 random bytes (128 bits) for UUID v4
 	b := make([]byte, 16)

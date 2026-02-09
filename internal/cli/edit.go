@@ -19,9 +19,9 @@ import (
 // The command opens the system editor with the current content,
 // allowing modifications to the item's text.
 var editCmd = &cobra.Command{
-	Use:     "edit <id>",
-	Short:   "Edit a context item",
-	Long:    "Edit a context item using the system editor. Opens the current content for modification.",
+	Use:   "edit <id>",
+	Short: "Edit a context item",
+	Long:  "Edit a context item using the system editor. Opens the current content for modification.",
 	Example: `  # Edit an item
   ck edit abc12345`,
 	Args: cobra.ExactArgs(1),

@@ -58,7 +58,8 @@ const (
 //   - showCompleted: If true, includes completed items in output
 //
 // Returns:
-//   A formatted string representation of the items, or "No items found." if empty
+//
+//	A formatted string representation of the items, or "No items found." if empty
 func FormatItemList(items []models.ContextItem, showCompleted bool) string {
 	if len(items) == 0 {
 		return "No items found."
@@ -115,7 +116,8 @@ func FormatItemList(items []models.ContextItem, showCompleted bool) string {
 //   - items: Slice of ContextItem to format
 //
 // Returns:
-//   A formatted table string, or "No items to display." if empty
+//
+//	A formatted table string, or "No items to display." if empty
 func FormatTable(items []models.ContextItem) string {
 	if len(items) == 0 {
 		return "No items to display."
@@ -168,7 +170,8 @@ func FormatTable(items []models.ContextItem) string {
 //   - maxLen: Maximum length of the resulting string
 //
 // Returns:
-//   The truncated string with ellipsis if applicable
+//
+//	The truncated string with ellipsis if applicable
 func truncateString(s string, maxLen int) string {
 	if len(s) <= maxLen {
 		return s

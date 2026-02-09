@@ -19,7 +19,7 @@ Grab binaries from the [releases page](https://github.com/ondrahracek/contextkee
 
 **Linux:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.4.1/ck-linux-amd64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.5.0/ck-linux-amd64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -27,7 +27,7 @@ sudo mv ck /usr/local/bin/
 
 **macOS:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.4.1/ck-darwin-arm64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.5.0/ck-darwin-arm64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -36,7 +36,7 @@ sudo mv ck /usr/local/bin/
 **Windows:**
 ```powershell
 # Download and extract manually from releases page, or use:
-Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.4.1/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
+Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.5.0/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
 tar -xf ck.tar.gz
 ```
 
@@ -107,6 +107,40 @@ git commit -m "Add project context"
 ```
 
 Or add to `.gitignore` if you prefer local-only storage.
+
+## MCP Server Integration
+
+ContextKeeper can be used as an MCP (Model Context Protocol) server with Cursor IDE and other MCP-compatible editors.
+
+### Quick Setup
+
+Add this to your `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "contextkeeper": {
+      "command": "npx",
+      "args": ["-y", "@ondrahracek/contextkeeper-mcp"]
+    }
+  }
+}
+```
+
+### Available Tools
+
+When connected, Claude in Cursor has access to:
+
+| Tool | Description |
+|------|-------------|
+| `list_context_items` | List all context items |
+| `add_context_item` | Add a new context item |
+| `complete_context_item` | Mark item as completed |
+| `context_status` | Quick status overview |
+
+### Note
+
+The MCP server requires `ck` CLI to be installed and on your PATH.
 
 ## Commands at a glance
 

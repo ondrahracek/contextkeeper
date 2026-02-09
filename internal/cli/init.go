@@ -17,9 +17,9 @@ import (
 // This command creates the .contextkeeper directory structure with
 // the necessary storage file (items.json).
 var initCmd = &cobra.Command{
-	Use:     "init",
-	Short:   "Initialize ContextKeeper",
-	Long:    "Create the .contextkeeper directory structure in the current directory.",
+	Use:   "init",
+	Short: "Initialize ContextKeeper",
+	Long:  "Create the .contextkeeper directory structure in the current directory.",
 	Example: `  # Initialize in current directory
   ck init`,
 	Args: cobra.NoArgs,

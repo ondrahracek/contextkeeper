@@ -12,7 +12,8 @@ import "time"
 //   - format: A format string compatible with time.Time.Format()
 //
 // Returns:
-//   A formatted string representation of the time
+//
+//	A formatted string representation of the time
 func FormatTime(t time.Time, format string) string {
 	return t.Format(format)
 }

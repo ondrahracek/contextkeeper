@@ -5,6 +5,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -24,9 +25,9 @@ import (
 //   - Via stdin (when no arguments provided)
 //   - Through an interactive editor (--editor flag)
 var addCmd = &cobra.Command{
-	Use:     "add [content]",
-	Short:   "Add a new context item",
-	Long:    "Add a new context item to storage. Content can be provided as an argument, via stdin, or using --editor.",
+	Use:   "add [content]",
+	Short: "Add a new context item",
+	Long:  "Add a new context item to storage. Content can be provided as an argument, via stdin, or using --editor.",
 	Example: `  # Add content directly
   ck add "Remember to update documentation"
 
@@ -38,7 +39,7 @@ var addCmd = &cobra.Command{
 
   # Add from stdin
   echo "Quick note" | ck add`,
-	Args:  cobra.MaximumNArgs(1),
+	Args: cobra.MaximumNArgs(1),
 	RunE: addCommand,
 }
 
@@ -128,7 +129,16 @@ func addCommand(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to save item: %w", err)
 	}
 
-	cmd.Println("Added context item")
+	if jsonOutput {
+		result := map[string]string{
+			"id":     item.ID[:8],
+			"status": "added",
+		}
+		data, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Fprintln(cmd.OutOrStdout(), string(data))
+	} else {
+		cmd.Println("Added context item")
+	}
 	return nil
 }
 
@@ -138,6 +148,7 @@ func init() {
 	addCmd.Flags().StringVarP(&projectFlag, "project", "p", "", "Project name for the context item")
 	addCmd.Flags().StringVarP(&tagStr, "tags", "t", "", "Tags for the context item (comma or space separated)")
 	addCmd.Flags().BoolVarP(&useEditor, "editor", "e", false, "Open editor to enter content")
+	addCmd.Flags().BoolVar(&jsonOutput, "json", false, "Output as JSON")
 
 	// Add command to root
 	RootCmd.AddCommand(addCmd)

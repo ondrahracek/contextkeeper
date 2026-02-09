@@ -64,16 +64,17 @@ func OpenEditor(initialContent string) (string, error) {
 // environment variables and common fallbacks in order of preference.
 //
 // The detection order is:
-//   1. EDITOR environment variable
-//   2. VISUAL environment variable
-//   3. vim
-//   4. vi
-//   5. nano
-//   6. code (VS Code)
-//   7. notepad (Windows)
+//  1. EDITOR environment variable
+//  2. VISUAL environment variable
+//  3. vim
+//  4. vi
+//  5. nano
+//  6. code (VS Code)
+//  7. notepad (Windows)
 //
 // Returns:
-//   The absolute path to the detected editor, or empty string if none found
+//
+//	The absolute path to the detected editor, or empty string if none found
 func detectEditor() string {
 	// Define editors in order of preference with environment variables first
 	// then common command-line editors as fallbacks

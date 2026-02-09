@@ -7,6 +7,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/ondrahracek/contextkeeper/internal/config"
 	"github.com/ondrahracek/contextkeeper/internal/models"
@@ -20,9 +21,9 @@ import (
 // The command supports filtering by project, tags, and completion status.
 // Output can be displayed in a formatted table or as JSON.
 var listCmd = &cobra.Command{
-	Use:     "list",
-	Short:   "List context items",
-	Long:    "List context items, optionally filtered by project or tags. Use --all to include completed items.",
+	Use:   "list",
+	Short: "List context items",
+	Long:  "List context items, optionally filtered by project or tags. Use --all to include completed items.",
 	Example: `  # List all active items
   ck list
 
@@ -78,13 +79,36 @@ func listCommand(cmd *cobra.Command, args []string) error {
 
 	// Output in requested format
 	if jsonOutput {
-		data, err := json.MarshalIndent(items, "", "  ")
+		type jsonItem struct {
+			ID          string     `json:"id"`
+			FullID      string     `json:"fullId"`
+			Content     string     `json:"content"`
+			Project     string     `json:"project"`
+			Tags        []string   `json:"tags"`
+			CompletedAt *time.Time `json:"completedAt"`
+			CreatedAt   time.Time  `json:"createdAt"`
+		}
+
+		jsonItems := make([]jsonItem, 0, len(items))
+		for _, item := range items {
+			jsonItems = append(jsonItems, jsonItem{
+				ID:          item.ID[:8],
+				FullID:      item.ID,
+				Content:     item.Content,
+				Project:     item.Project,
+				Tags:        item.Tags,
+				CompletedAt: item.CompletedAt,
+				CreatedAt:   item.CreatedAt,
+			})
+		}
+
+		data, err := json.MarshalIndent(jsonItems, "", "  ")
 		if err != nil {
 			return fmt.Errorf("failed to marshal items to JSON: %w", err)
 		}
-		fmt.Println(string(data))
+		fmt.Fprintln(cmd.OutOrStdout(), string(data))
 	} else {
-		fmt.Print(utils.FormatItemList(items, showAll))
+		fmt.Fprint(cmd.OutOrStdout(), utils.FormatItemList(items, showAll))
 	}
 
 	return nil

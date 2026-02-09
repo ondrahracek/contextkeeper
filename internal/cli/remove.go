@@ -18,9 +18,9 @@ import (
 // The command requires an item ID and can optionally skip confirmation
 // with the --force flag.
 var removeCmd = &cobra.Command{
-	Use:     "remove <id>",
-	Short:   "Remove a context item",
-	Long:    "Remove a context item by its ID. Use --force to skip the confirmation prompt.",
+	Use:   "remove <id>",
+	Short: "Remove a context item",
+	Long:  "Remove a context item by its ID. Use --force to skip the confirmation prompt.",
 	Example: `  # Remove with confirmation
   ck remove abc12345
 
