@@ -19,7 +19,7 @@ Grab binaries from the [releases page](https://github.com/ondrahracek/contextkee
 
 **Linux:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.5.0/ck-linux-amd64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.6.0/ck-linux-amd64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -27,7 +27,7 @@ sudo mv ck /usr/local/bin/
 
 **macOS:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.5.0/ck-darwin-arm64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.6.0/ck-darwin-arm64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -36,7 +36,7 @@ sudo mv ck /usr/local/bin/
 **Windows:**
 ```powershell
 # Download and extract manually from releases page, or use:
-Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.5.0/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
+Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.6.0/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
 tar -xf ck.tar.gz
 ```
 
