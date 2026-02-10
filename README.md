@@ -150,6 +150,25 @@ When connected, Claude in Cursor has access to:
 
 The MCP server requires `ck` CLI to be installed and on your PATH.
 
+## AI Agent Sync
+
+Sync your context items directly to AI agent rule files for automatic context discovery.
+
+**Claude Code:**
+```bash
+ck sync  # Creates .claude/rules/ck-context.md
+```
+
+**Cursor:**
+```bash
+ck sync  # Creates .cursor/rules/ck-context.mdc
+```
+
+The sync command:
+- Writes active items to standard AI agent directories
+- Includes a header noting the file is auto-generated
+- Falls back to `.contextkeeper/instructions.md` if no agent directories exist
+
 ## Commands at a glance
 
 | Command | What it does |
@@ -157,6 +176,7 @@ The MCP server requires `ck` CLI to be installed and on your PATH.
 | `ck add [content]` | Add a new note |
 | `ck list` | List all notes (shows 6-char IDs) |
 | `ck search [query]` | Search notes by content or tags |
+| `ck sync` | Sync active items to AI agent files (`.claude/rules/`, `.cursor/rules/`) |
 | `ck done <id>` | Mark as completed (accepts partial ID) |
 | `ck remove <id>` | Archive or delete |
 | `ck edit <id>` | Edit a note |

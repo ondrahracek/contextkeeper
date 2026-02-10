@@ -1,0 +1,195 @@
+// Package cli provides the command-line interface for ContextKeeper.
+//
+// This package implements the Cobra-based CLI for managing context and
+// configuration. See the root.go file for the main command structure.
+package cli
+
+import (
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/ondrahracek/contextkeeper/internal/config"
+	"github.com/ondrahracek/contextkeeper/internal/models"
+	"github.com/ondrahracek/contextkeeper/internal/storage"
+	"github.com/spf13/cobra"
+)
+
+// syncCmd represents the sync command.
+// It exports active context items to AI agent rule files for automatic context discovery.
+//
+// The sync command supports standard AI agent directories:
+//   - .claude/rules/ck-context.md (for Claude Code)
+//   - .cursor/rules/ck-context.mdc (for Cursor)
+//
+// If no standard directories are found, it falls back to .contextkeeper/instructions.md
+// if that directory exists.
+//
+// # Exit Codes
+//
+//	0 - Success
+//	1 - Storage error or file write error
+var syncCmd = &cobra.Command{
+	Use:     "sync",
+	Short:   "Sync context to AI agent rule files",
+	Long:    syncLongDesc,
+	Example: syncExample,
+	RunE:    runSync,
+}
+
+// syncLongDesc provides detailed documentation for the sync command.
+const syncLongDesc = `Syncs active context items to .claude/rules/ and .cursor/rules/ 
+to provide automatic context to Claude Code and Cursor.
+
+The generated files include a header noting they are auto-generated
+and list all active items with their IDs, content, and tags.
+
+If no agent directories are found, it falls back to .contextkeeper/instructions.md
+if that directory exists.`
+
+// syncExample provides usage examples for the sync command.
+const syncExample = `  # Sync to AI agents (Claude Code and Cursor)
+  ck sync
+
+  # Output from sync command
+  $ ck sync
+  Synced to .claude/rules/ck-context.md
+  Synced to .cursor/rules/ck-context.mdc`
+
+// runSync is the execution function for the sync command.
+// It loads active items from storage and writes them to AI agent rule files.
+func runSync(cmd *cobra.Command, args []string) error {
+	stor := storage.NewStorage(config.FindStoragePath(""))
+	if err := stor.Load(); err != nil {
+		return fmt.Errorf("failed to load storage: %w", err)
+	}
+
+	items := stor.GetAll()
+	activeItems := filterActive(items)
+
+	content := generateMarkdown(activeItems)
+
+	// Define target paths for standard AI agents
+	targets := []string{
+		filepath.Join(".claude", "rules", "ck-context.md"),
+		filepath.Join(".cursor", "rules", "ck-context.mdc"),
+	}
+
+	synced, syncErrs := writeSyncFiles(targets, content, cmd.OutOrStdout())
+
+	// Fallback to .contextkeeper if no agent rules folders found
+	if !synced {
+		synced, fallbackErr := writeFallbackFile(content, cmd.OutOrStdout())
+		if !synced && fallbackErr != nil {
+			syncErrs = append(syncErrs, fallbackErr)
+		}
+	}
+
+	if !synced {
+		fmt.Fprintln(cmd.OutOrStdout(), "No AI agent directories found (.claude/rules or .cursor/rules).")
+		fmt.Fprintln(cmd.OutOrStdout(), "Hint: Create one of these or run 'ck init' to use .contextkeeper fallback.")
+	}
+
+	// Return first error if any occurred
+	if len(syncErrs) > 0 {
+		return syncErrs[0]
+	}
+	return nil
+}
+
+// writeSyncFiles attempts to write the sync content to all specified target paths.
+// Returns the number of files successfully written and any errors encountered.
+func writeSyncFiles(targets []string, content string, output io.Writer) (bool, []error) {
+	synced := false
+	var errs []error
+
+	for _, path := range targets {
+		dir := filepath.Dir(path)
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			continue // Skip non-existent directories
+		}
+
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			errs = append(errs, fmt.Errorf("failed to write %s: %w", path, err))
+			continue
+		}
+
+		fmt.Fprintf(output, "Synced to %s\n", path)
+		synced = true
+	}
+
+	return synced, errs
+}
+
+// writeFallbackFile attempts to write to the .contextkeeper/instructions.md fallback.
+// Returns true if successful, or an error if the write failed or directory didn't exist.
+func writeFallbackFile(content string, output io.Writer) (bool, error) {
+	// Only fallback if .contextkeeper directory exists
+	if _, err := os.Stat(".contextkeeper"); os.IsNotExist(err) {
+		return false, nil
+	}
+
+	fallbackPath := filepath.Join(".contextkeeper", "instructions.md")
+	if err := os.WriteFile(fallbackPath, []byte(content), 0644); err != nil {
+		return false, fmt.Errorf("failed to write fallback file %s: %w", fallbackPath, err)
+	}
+
+	fmt.Fprintf(output, "Synced to %s\n", fallbackPath)
+	return true, nil
+}
+
+// generateMarkdown creates a formatted Markdown string from context items.
+// It produces a header indicating auto-generation and lists all active items
+// with their ID prefixes, content, and tags.
+//
+// The output format is designed to be easily readable by AI agents and humans:
+//
+//	# Project Context (via ContextKeeper)
+//	> [!IMPORTANT]
+//	> This file is auto-generated by ContextKeeper. Manual changes will be overwritten.
+//	_Last updated: 2026-02-10T18:00:00Z_
+//
+//	## Active Items
+//
+//	- [abc12345] Fix the auth bug (@bug, @security)
+//	- [def67890] Add new feature (@feature)
+func generateMarkdown(items []models.ContextItem) string {
+	var sb strings.Builder
+	sb.WriteString("# Project Context (via ContextKeeper)\n")
+	sb.WriteString("> [!IMPORTANT]\n")
+	sb.WriteString("> This file is auto-generated by ContextKeeper. Manual changes will be overwritten.\n\n")
+	sb.WriteString("_Last updated: " + time.Now().Format(time.RFC3339) + "_\n\n")
+
+	if len(items) == 0 {
+		sb.WriteString("No active context items.\n")
+		return sb.String()
+	}
+
+	sb.WriteString("## Active Items\n\n")
+	for _, item := range items {
+		sb.WriteString(formatItemLine(item))
+	}
+
+	return sb.String()
+}
+
+// formatItemLine formats a single context item as a Markdown list item.
+func formatItemLine(item models.ContextItem) string {
+	id := item.ID
+	if len(id) > 8 {
+		id = id[:8]
+	}
+
+	line := fmt.Sprintf("- [%s] %s", id, item.Content)
+	if len(item.Tags) > 0 {
+		line += fmt.Sprintf(" (@%s)", strings.Join(item.Tags, ", @"))
+	}
+	return line + "\n"
+}
+
+func init() {
+	RootCmd.AddCommand(syncCmd)
+}
