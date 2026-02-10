@@ -72,32 +72,8 @@ func runSync(cmd *cobra.Command, args []string) error {
 
 	content := generateMarkdown(activeItems)
 
-	// Define target paths for standard AI agents
-	targets := []string{
-		filepath.Join(".claude", "rules", "ck-context.md"),
-		filepath.Join(".cursor", "rules", "ck-context.mdc"),
-	}
-
-	synced, syncErrs := writeSyncFiles(targets, content, cmd.OutOrStdout())
-
-	// Fallback to .contextkeeper if no agent rules folders found
-	if !synced {
-		synced, fallbackErr := writeFallbackFile(content, cmd.OutOrStdout())
-		if !synced && fallbackErr != nil {
-			syncErrs = append(syncErrs, fallbackErr)
-		}
-	}
-
-	if !synced {
-		fmt.Fprintln(cmd.OutOrStdout(), "No AI agent directories found (.claude/rules or .cursor/rules).")
-		fmt.Fprintln(cmd.OutOrStdout(), "Hint: Create one of these or run 'ck init' to use .contextkeeper fallback.")
-	}
-
-	// Return first error if any occurred
-	if len(syncErrs) > 0 {
-		return syncErrs[0]
-	}
-	return nil
+	_, err := SyncToFiles(content, cmd.OutOrStdout())
+	return err
 }
 
 // writeSyncFiles attempts to write the sync content to all specified target paths.
@@ -139,6 +115,98 @@ func writeFallbackFile(content string, output io.Writer) (bool, error) {
 
 	fmt.Fprintf(output, "Synced to %s\n", fallbackPath)
 	return true, nil
+}
+
+// SyncToFiles syncs the given markdown content to AI agent rule files.
+//
+// This function is used by CRUD commands (add, done, remove, edit) when the --sync
+// flag is provided. It writes the content to standard AI agent directories:
+//   - .claude/rules/ck-context.md (for Claude Code)
+//   - .cursor/rules/ck-context.mdc (for Cursor)
+//
+// If no standard directories are found, it falls back to .contextkeeper/instructions.md
+// if that directory exists.
+//
+// Parameters:
+//   - content: The markdown content to sync to files
+//   - output: The writer for status messages (typically stdout)
+//
+// Returns:
+//   - int: Number of files successfully synced
+//   - error: Any error encountered during sync (sync errors do not fail the main operation)
+func SyncToFiles(content string, output io.Writer) (int, error) {
+	syncedCount := 0
+	var lastErr error
+
+	// Define target paths for standard AI agents
+	targets := []string{
+		filepath.Join(".claude", "rules", "ck-context.md"),
+		filepath.Join(".cursor", "rules", "ck-context.mdc"),
+	}
+
+	for _, path := range targets {
+		dir := filepath.Dir(path)
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			continue // Skip non-existent directories
+		}
+
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			lastErr = err
+			continue
+		}
+
+		fmt.Fprintf(output, "Synced to %s\n", path)
+		syncedCount++
+	}
+
+	// Fallback to .contextkeeper if no agent rules folders found
+	if syncedCount == 0 {
+		if _, err := os.Stat(".contextkeeper"); !os.IsNotExist(err) {
+			fallbackPath := filepath.Join(".contextkeeper", "instructions.md")
+			if err := os.WriteFile(fallbackPath, []byte(content), 0644); err != nil {
+				lastErr = err
+			} else {
+				fmt.Fprintf(output, "Synced to %s\n", fallbackPath)
+				syncedCount++
+			}
+		}
+	}
+
+	if syncedCount == 0 {
+		fmt.Fprintln(output, "No AI agent directories found (.claude/rules or .cursor/rules).")
+		fmt.Fprintln(output, "Hint: Create one of these or run 'ck init' to use .contextkeeper fallback.")
+	}
+
+	return syncedCount, lastErr
+}
+
+// syncAfterCRUD syncs active items to files after a CRUD operation.
+// This is a helper that can be called by add, done, remove, and edit commands.
+//
+// Parameters:
+//   - output: The writer for status messages (typically stdout)
+//
+// Returns:
+//   - int: Number of files successfully synced
+//   - error: Any error encountered during sync (errors are logged as warnings)
+func syncAfterCRUD(output io.Writer) int {
+	stor := storage.NewStorage(config.FindStoragePath(""))
+	if err := stor.Load(); err != nil {
+		fmt.Fprintf(output, "Warning: failed to load storage for sync: %v\n", err)
+		return 0
+	}
+
+	items := stor.GetAll()
+	activeItems := filterActive(items)
+	content := generateMarkdown(activeItems)
+
+	synced, err := SyncToFiles(content, output)
+	if err != nil {
+		fmt.Fprintf(output, "Warning: sync failed: %v\n", err)
+		return synced
+	}
+
+	return synced
 }
 
 // generateMarkdown creates a formatted Markdown string from context items.

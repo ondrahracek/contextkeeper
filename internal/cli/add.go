@@ -51,6 +51,8 @@ var (
 	tagStr string
 	// useEditor opens the system editor for content input
 	useEditor bool
+	// addSyncFlag triggers sync to AI agent files after adding
+	addSyncFlag bool
 )
 
 // addCommand is the execution function for the add command.
@@ -139,6 +141,15 @@ func addCommand(cmd *cobra.Command, args []string) error {
 	} else {
 		cmd.Println("Added context item")
 	}
+
+	// Sync to files if --sync flag is set
+	if addSyncFlag {
+		synced := syncAfterCRUD(cmd.OutOrStdout())
+		if synced > 0 {
+			cmd.Printf("Synced %d files\n", synced)
+		}
+	}
+
 	return nil
 }
 
@@ -149,6 +160,7 @@ func init() {
 	addCmd.Flags().StringVarP(&tagStr, "tags", "t", "", "Tags for the context item (comma or space separated)")
 	addCmd.Flags().BoolVarP(&useEditor, "editor", "e", false, "Open editor to enter content")
 	addCmd.Flags().BoolVar(&jsonOutput, "json", false, "Output as JSON")
+	addCmd.Flags().BoolVar(&addSyncFlag, "sync", false, "Sync to AI agent rule files after adding")
 
 	// Add command to root
 	RootCmd.AddCommand(addCmd)

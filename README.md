@@ -19,7 +19,7 @@ Grab binaries from the [releases page](https://github.com/ondrahracek/contextkee
 
 **Linux:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.6.0/ck-linux-amd64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.0/ck-linux-amd64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -27,7 +27,7 @@ sudo mv ck /usr/local/bin/
 
 **macOS:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.6.0/ck-darwin-arm64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.0/ck-darwin-arm64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -36,7 +36,7 @@ sudo mv ck /usr/local/bin/
 **Windows:**
 ```powershell
 # Download and extract manually from releases page, or use:
-Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.6.0/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
+Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.0/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
 tar -xf ck.tar.gz
 ```
 
@@ -164,22 +164,38 @@ ck sync  # Creates .claude/rules/ck-context.md
 ck sync  # Creates .cursor/rules/ck-context.mdc
 ```
 
+### Auto-sync with CRUD Commands
+
+Use `--sync` flag on any CRUD command to sync immediately after the operation:
+
+```bash
+ck add "New feature idea" --sync
+ck done abc12345 --sync
+ck remove def67890 --sync
+ck edit ghi11223 "Updated content" --sync
+```
+
 The sync command:
 - Writes active items to standard AI agent directories
 - Includes a header noting the file is auto-generated
 - Falls back to `.contextkeeper/instructions.md` if no agent directories exist
+- Sync failures do not affect the main CRUD operation
 
 ## Commands at a glance
 
 | Command | What it does |
 |---------|--------------|
 | `ck add [content]` | Add a new note |
+| `ck add [content] --sync` | Add and sync to AI agents |
 | `ck list` | List all notes (shows 6-char IDs) |
 | `ck search [query]` | Search notes by content or tags |
-| `ck sync` | Sync active items to AI agent files (`.claude/rules/`, `.cursor/rules/`) |
+| `ck sync` | Sync active items to AI agent files |
 | `ck done <id>` | Mark as completed (accepts partial ID) |
+| `ck done <id> --sync` | Mark completed and sync |
 | `ck remove <id>` | Archive or delete |
+| `ck remove <id> --sync` | Remove and sync |
 | `ck edit <id>` | Edit a note |
+| `ck edit <id> --sync` | Edit and sync |
 | `ck init` | Set up storage |
 | `ck status` | Quick overview |
 

@@ -94,6 +94,15 @@ func markItemComplete(stor storage.Storage, cmd *cobra.Command, item models.Cont
 	} else {
 		cmd.Printf("Marked item as completed: %s\n", item.ID[:8])
 	}
+
+	// Sync to files if --sync flag is set
+	if doneSyncFlag {
+		synced := syncAfterCRUD(cmd.OutOrStdout())
+		if synced > 0 {
+			cmd.Printf("Synced %d files\n", synced)
+		}
+	}
+
 	return nil
 }
 
@@ -127,9 +136,13 @@ func showAmbiguousMatches(stor storage.Storage, cmd *cobra.Command, prefix strin
 	return fmt.Errorf("ambiguous ID: %s", prefix)
 }
 
+// doneSyncFlag triggers sync to AI agent files after marking complete
+var doneSyncFlag bool
+
 // init registers the done command with the root command.
 func init() {
 	doneCmd.Flags().BoolVar(&jsonOutput, "json", false, "Output as JSON")
+	doneCmd.Flags().BoolVar(&doneSyncFlag, "sync", false, "Sync to AI agent rule files after marking complete")
 	// Add command to root
 	RootCmd.AddCommand(doneCmd)
 }

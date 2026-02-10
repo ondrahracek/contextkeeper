@@ -28,6 +28,9 @@ var editCmd = &cobra.Command{
 	RunE: editCommand,
 }
 
+// editSyncFlag triggers sync to AI agent files after editing
+var editSyncFlag bool
+
 // editCommand is the execution function for the edit command.
 // It finds an item, opens it in the editor, and saves changes.
 func editCommand(cmd *cobra.Command, args []string) error {
@@ -73,11 +76,22 @@ func editCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	cmd.Printf("Updated item: %s\n", id[:8])
+
+	// Sync to files if --sync flag is set
+	if editSyncFlag {
+		synced := syncAfterCRUD(cmd.OutOrStdout())
+		if synced > 0 {
+			cmd.Printf("Synced %d files\n", synced)
+		}
+	}
+
 	return nil
 }
 
 // init registers the edit command with the root command.
 func init() {
+	editCmd.Flags().BoolVar(&jsonOutput, "json", false, "Output as JSON")
+	editCmd.Flags().BoolVar(&editSyncFlag, "sync", false, "Sync to AI agent rule files after editing")
 	// Add command to root
 	RootCmd.AddCommand(editCmd)
 }

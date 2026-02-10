@@ -33,6 +33,9 @@ var removeCmd = &cobra.Command{
 // forceDelete skips the confirmation prompt when true.
 var forceDelete bool
 
+// removeSyncFlag triggers sync to AI agent files after removing
+var removeSyncFlag bool
+
 // removeCommand is the execution function for the remove command.
 // It finds and removes a context item from storage.
 func removeCommand(cmd *cobra.Command, args []string) error {
@@ -84,6 +87,15 @@ func removeCommand(cmd *cobra.Command, args []string) error {
 		displayID = displayID[:8]
 	}
 	cmd.Printf("Removed item: %s\n", displayID)
+
+	// Sync to files if --sync flag is set
+	if removeSyncFlag {
+		synced := syncAfterCRUD(cmd.OutOrStdout())
+		if synced > 0 {
+			cmd.Printf("Synced %d files\n", synced)
+		}
+	}
+
 	return nil
 }
 
@@ -91,6 +103,8 @@ func removeCommand(cmd *cobra.Command, args []string) error {
 func init() {
 	// Register command flags
 	removeCmd.Flags().BoolVarP(&forceDelete, "force", "f", false, "Skip confirmation and permanently delete")
+	removeCmd.Flags().BoolVar(&jsonOutput, "json", false, "Output as JSON")
+	removeCmd.Flags().BoolVar(&removeSyncFlag, "sync", false, "Sync to AI agent rule files after removing")
 
 	// Add command to root
 	RootCmd.AddCommand(removeCmd)
