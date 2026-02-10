@@ -78,6 +78,14 @@ ck list --all              # Include completed items
 ck list --json             # JSON output for scripting
 ```
 
+Search notes:
+```bash
+ck search auth             # Search for "auth" in content/tags
+ck search --tag bug        # Search by tag
+ck search --all           # Include completed items in results
+ck search --json          # JSON output for scripting
+```
+
 Mark things done:
 ```bash
 ck done 5299c5             # Mark item as completed (use 6+ chars of ID)
@@ -148,6 +156,7 @@ The MCP server requires `ck` CLI to be installed and on your PATH.
 |---------|--------------|
 | `ck add [content]` | Add a new note |
 | `ck list` | List all notes (shows 6-char IDs) |
+| `ck search [query]` | Search notes by content or tags |
 | `ck done <id>` | Mark as completed (accepts partial ID) |
 | `ck remove <id>` | Archive or delete |
 | `ck edit <id>` | Edit a note |
