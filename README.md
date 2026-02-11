@@ -19,7 +19,7 @@ Grab binaries from the [releases page](https://github.com/ondrahracek/contextkee
 
 **Linux:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.0/ck-linux-amd64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.1/ck-linux-amd64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -27,7 +27,7 @@ sudo mv ck /usr/local/bin/
 
 **macOS:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.0/ck-darwin-arm64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.1/ck-darwin-arm64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -36,7 +36,7 @@ sudo mv ck /usr/local/bin/
 **Windows:**
 ```powershell
 # Download and extract manually from releases page, or use:
-Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.0/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
+Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.1/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
 tar -xf ck.tar.gz
 ```
 
@@ -67,6 +67,7 @@ ck add "Remember to fix the auth bug in login.js"
 ck add "API endpoint needs rate limiting" --project "api"
 ck add "Great idea for feature X" --tags "idea,feature"
 ck add -e                  # Opens your editor for longer notes
+ck add "Note" --path ./project   # Use specific context directory
 ```
 
 See what you have:
@@ -76,6 +77,7 @@ ck list --project webapp   # Filter by project
 ck list --tags bug         # Filter by tag
 ck list --all              # Include completed items
 ck list --json             # JSON output for scripting
+ck list --path ./project   # Use specific context directory
 ```
 
 Search notes:
@@ -84,6 +86,7 @@ ck search auth             # Search for "auth" in content/tags
 ck search --tag bug        # Search by tag
 ck search --all           # Include completed items in results
 ck search --json          # JSON output for scripting
+ck search --path ./project # Use specific context directory
 ```
 
 Mark things done:
@@ -186,18 +189,25 @@ The sync command:
 | Command | What it does |
 |---------|--------------|
 | `ck add [content]` | Add a new note |
+| `ck add [content] --path <dir>` | Add to specific context directory |
 | `ck add [content] --sync` | Add and sync to AI agents |
 | `ck list` | List all notes (shows 6-char IDs) |
+| `ck list --path <dir>` | List from specific context directory |
 | `ck search [query]` | Search notes by content or tags |
+| `ck search --path <dir>` | Search in specific context directory |
 | `ck sync` | Sync active items to AI agent files |
 | `ck done <id>` | Mark as completed (accepts partial ID) |
+| `ck done <id> --path <dir>` | Work in specific context directory |
 | `ck done <id> --sync` | Mark completed and sync |
 | `ck remove <id>` | Archive or delete |
+| `ck remove <id> --path <dir>` | Work in specific context directory |
 | `ck remove <id> --sync` | Remove and sync |
 | `ck edit <id>` | Edit a note |
+| `ck edit <id> --path <dir>` | Work in specific context directory |
 | `ck edit <id> --sync` | Edit and sync |
 | `ck init` | Set up storage |
 | `ck status` | Quick overview |
+| `ck status --path <dir>` | Status for specific context directory |
 
 ## Building from source
 
