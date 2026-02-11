@@ -19,7 +19,7 @@ Grab binaries from the [releases page](https://github.com/ondrahracek/contextkee
 
 **Linux:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.1/ck-linux-amd64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.2/ck-linux-amd64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -27,7 +27,7 @@ sudo mv ck /usr/local/bin/
 
 **macOS:**
 ```bash
-curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.1/ck-darwin-arm64.tar.gz -o ck.tar.gz
+curl -L https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.2/ck-darwin-arm64.tar.gz -o ck.tar.gz
 tar -xzf ck.tar.gz
 chmod +x ck
 sudo mv ck /usr/local/bin/
@@ -36,7 +36,7 @@ sudo mv ck /usr/local/bin/
 **Windows:**
 ```powershell
 # Download and extract manually from releases page, or use:
-Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.1/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
+Invoke-WebRequest -Uri "https://github.com/ondrahracek/contextkeeper/releases/download/v0.7.2/ck-windows-amd64.tar.gz" -OutFile ck.tar.gz
 tar -xf ck.tar.gz
 ```
 
@@ -57,7 +57,7 @@ go build -o ck .
 Initialize a project:
 ```bash
 ck init                    # Creates .contextkeeper/ in current directory
-ck init --path ./shared   # Custom path for shared team context
+ck init --path ./shared   # Creates ./shared/.contextkeeper/ for shared team context
 ck init --global          # Global storage at ~/.local/share/contextkeeper
 ```
 
@@ -103,7 +103,7 @@ ContextKeeper stores all your notes in a single file called `items.json` inside 
 
 ContextKeeper looks for storage in this order:
 
-1. Explicit path: `--path` flag
+1. Explicit path: `--path` flag (creates `.contextkeeper/` subdirectory in the specified path)
 2. Environment variable: `CK_PATH`
 3. Local project: `.contextkeeper/` directory
 4. Global default: OS-specific location (e.g., `~/.local/share/contextkeeper`)

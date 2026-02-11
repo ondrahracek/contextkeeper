@@ -29,8 +29,15 @@ var initCmd = &cobra.Command{
 // initCommand is the execution function for the init command.
 // It creates the required directory structure and items.json file.
 func initCommand(cmd *cobra.Command, args []string) error {
-	// Define the context directory
-	contextDir := ".contextkeeper"
+	// Determine the context directory path
+	var contextDir string
+	if pathFlag != "" {
+		// Use the explicit path with .contextkeeper appended
+		contextDir = filepath.Join(pathFlag, ".contextkeeper")
+	} else {
+		// Default to local .contextkeeper directory
+		contextDir = ".contextkeeper"
+	}
 
 	// Create the .contextkeeper directory
 	if err := os.MkdirAll(contextDir, 0755); err != nil {
