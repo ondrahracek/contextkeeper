@@ -1,5 +1,5 @@
-63b6b0af5324191cbd11c4eb444195a82fbcf16d0e0b93704923e80245aa5dd5  ck-darwin-amd64.tar.gz
-63b6b0af5324191cbd11c4eb444195a82fbcf16d0e0b93704923e80245aa5dd5  ck-darwin-arm64.tar.gz
-63b6b0af5324191cbd11c4eb444195a82fbcf16d0e0b93704923e80245aa5dd5  ck-linux-amd64.tar.gz
-63b6b0af5324191cbd11c4eb444195a82fbcf16d0e0b93704923e80245aa5dd5  ck-linux-arm64.tar.gz
-8c9dfb8488c61af5a5f75b6e60fc9fbdbffb165972b327710c04a2a0d4fc69e5  ck-windows-amd64.tar.gz
+ae2cda38cf8a87d6ff9d1eacbd7ff7e8aa266c032a592f4b3e46eb7b7fa4a45e  ck-darwin-amd64.tar.gz
+12ab4d5ff3bad4b1940a8fa30795cfb280ae3b8f1bc47eab9ce08646427178e4  ck-darwin-arm64.tar.gz
+0c41b49e0e5718747e57eb0ddc730bc5bd8bf59704456b7cb9e8d90a55f84812  ck-linux-amd64.tar.gz
+7c277a4cdf998c10614e36f21dcce7490d2fb1bbea763c310db5bf9ebe76b265  ck-linux-arm64.tar.gz
+1f4a7ef71f19a8325a4f065c33cd218b6118f8bdec5047c850736df2a3903155  ck-windows-amd64.tar.gz
