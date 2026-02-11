@@ -42,6 +42,7 @@ var listCmd = &cobra.Command{
 	RunE: listCommand,
 }
 
+
 // Command flags for the list command.
 var (
 	projectFilter string
@@ -54,7 +55,7 @@ var (
 // It retrieves and filters context items from storage.
 func listCommand(cmd *cobra.Command, args []string) error {
 	// Initialize storage and load items
-	stor := storage.NewStorage(config.FindStoragePath(""))
+	stor := storage.NewStorage(config.FindStoragePath(pathFlag))
 	if err := stor.Load(); err != nil {
 		return fmt.Errorf("failed to load storage: %w", err)
 	}

@@ -21,6 +21,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// pathFlag is a shared flag for specifying the context directory path
+var pathFlag string
+
 // RootCmd is the base command for the ContextKeeper CLI.
 //
 // All other commands are registered as subcommands of RootCmd.
@@ -63,4 +66,10 @@ func Execute() {
 		// Error handling is managed by Cobra
 		// which will print the error and exit with appropriate code
 	}
+}
+
+// init registers shared flags with RootCmd
+func init() {
+	// Register --path as a persistent flag (inherited by all subcommands)
+	RootCmd.PersistentFlags().StringVar(&pathFlag, "path", "", "Path to the context directory")
 }

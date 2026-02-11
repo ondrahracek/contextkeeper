@@ -118,7 +118,7 @@ func addCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	// Initialize storage and add the item
-	stor := storage.NewStorage(config.FindStoragePath(""))
+	stor := storage.NewStorage(config.FindStoragePath(pathFlag))
 	if err := stor.Load(); err != nil {
 		return fmt.Errorf("failed to load storage: %w", err)
 	}

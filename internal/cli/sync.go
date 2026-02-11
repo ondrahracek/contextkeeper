@@ -62,7 +62,7 @@ const syncExample = `  # Sync to AI agents (Claude Code and Cursor)
 // runSync is the execution function for the sync command.
 // It loads active items from storage and writes them to AI agent rule files.
 func runSync(cmd *cobra.Command, args []string) error {
-	stor := storage.NewStorage(config.FindStoragePath(""))
+	stor := storage.NewStorage(config.FindStoragePath(pathFlag))
 	if err := stor.Load(); err != nil {
 		return fmt.Errorf("failed to load storage: %w", err)
 	}
@@ -190,7 +190,7 @@ func SyncToFiles(content string, output io.Writer) (int, error) {
 //   - int: Number of files successfully synced
 //   - error: Any error encountered during sync (errors are logged as warnings)
 func syncAfterCRUD(output io.Writer) int {
-	stor := storage.NewStorage(config.FindStoragePath(""))
+	stor := storage.NewStorage(config.FindStoragePath(pathFlag))
 	if err := stor.Load(); err != nil {
 		fmt.Fprintf(output, "Warning: failed to load storage for sync: %v\n", err)
 		return 0

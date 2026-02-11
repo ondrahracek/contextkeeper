@@ -32,7 +32,7 @@ var statusCmd = &cobra.Command{
 // It gathers and displays statistics about stored items.
 func statusCommand(cmd *cobra.Command, args []string) error {
 	// Get storage path
-	storagePath := config.FindStoragePath("")
+	storagePath := config.FindStoragePath(pathFlag)
 
 	// Initialize storage and load items
 	stor := storage.NewStorage(storagePath)

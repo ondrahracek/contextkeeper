@@ -37,7 +37,7 @@ func editCommand(cmd *cobra.Command, args []string) error {
 	id := args[0]
 
 	// Initialize storage and load items
-	stor := storage.NewStorage(config.FindStoragePath(""))
+	stor := storage.NewStorage(config.FindStoragePath(pathFlag))
 	if err := stor.Load(); err != nil {
 		return fmt.Errorf("failed to load storage: %w", err)
 	}
